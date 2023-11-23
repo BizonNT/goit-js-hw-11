@@ -11,7 +11,7 @@ const IMAGE_ID = '';
 
 const axios = require('axios').default;
 
-export async function searchRequest(q, page, per_page) {
+export function searchRequest(q, page, per_page) {
   const options = {
     params: {
       key: API_KEY,
@@ -23,5 +23,5 @@ export async function searchRequest(q, page, per_page) {
       per_page,
     },
   };
-  return await axios.get(`${BASE_URL}`, options).then(resp => resp);
+  return axios.get(`${BASE_URL}`, options).then(resp => resp);
 }
