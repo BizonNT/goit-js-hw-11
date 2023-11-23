@@ -71,7 +71,14 @@ function clickLoadMore(event) {
         throw new Error('Sorry, something went wrong. Please try again');
       }
       imageList.insertAdjacentHTML('beforeend', cardMarkup(response.data));
-      let lightbox = new SimpleLightbox('.gallery a');
+      let lightbox = new SimpleLightbox('.gallery a', {
+        captions: true,
+        captionType: 'attr',
+        captionsData: 'alt',
+        captionPosition: 'bottom',
+        captionDelay: 250,
+        showCounter: false,
+      });
       if (response.data.totalHits > perPage * startPage) {
         loadMore.classList.remove('hidden-item');
         startPage += 1;
@@ -81,8 +88,3 @@ function clickLoadMore(event) {
       Notiflix.Notify.failure(error.message);
     });
 }
-
-// c
-//   /* options */
-
-// });
