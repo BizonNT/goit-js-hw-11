@@ -9,7 +9,7 @@ const SAFESEARCH = 'true';
 
 const IMAGE_ID = '';
 
-const axios = require('axios');
+const axios = require('axios').default;
 
 export async function searchRequest(q, page, per_page) {
   const options = {
