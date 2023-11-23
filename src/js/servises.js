@@ -23,5 +23,5 @@ export async function searchRequest(q, page, per_page) {
       per_page,
     },
   };
-  return await axios.get(`${BASE_URL}`, options);
+  return await axios.get(`${BASE_URL}`, options).then(resp => resp);
 }
