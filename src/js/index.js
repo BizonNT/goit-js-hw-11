@@ -16,7 +16,7 @@ const loadMore = document.querySelector('.js-load-more');
 
 let startPage = 1;
 let serchItem = '';
-let perPage = '20';
+let perPage = '40';
 
 formSearch.addEventListener('submit', onSubmit);
 loadMore.addEventListener('click', clickLoadMore);
@@ -45,6 +45,11 @@ function clickLoadMore(event) {
     .then(response => {
       if (response.totalHits === 0) {
         throw new Error('Sorry, something went wrong. Please try again');
+      }
+      if (response.totalHits <= perPage * startPage) {
+        Notiflix.Notify.info(
+          `We're sorry, but you've reached the end of ${response.totalHits} search results.`
+        );
       }
       startPage = createMarkup(response, startPage);
     })

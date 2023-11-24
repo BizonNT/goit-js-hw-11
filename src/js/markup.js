@@ -58,6 +58,14 @@ export function createMarkup(array, page) {
     imageList.innerHTML = cardMarkup(array);
   } else {
     imageList.insertAdjacentHTML('beforeend', cardMarkup(array));
+    const { height: cardHeight } = document
+      .querySelector('.gallery')
+      .firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
   }
   lightbox.refresh();
   if (array.totalHits > perPage * page) {
