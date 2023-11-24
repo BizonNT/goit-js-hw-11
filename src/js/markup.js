@@ -1,4 +1,19 @@
-export function cardMarkup(array) {
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+let lightbox = new SimpleLightbox('.gallery a', {
+  captions: true,
+  captionType: 'attr',
+  captionsData: 'alt',
+  captionPosition: 'bottom',
+  captionDelay: 250,
+  showCounter: true,
+  close: true,
+});
+
+import { loadMore, imageList, perPage } from './index';
+
+function cardMarkup(array) {
   return array.hits
     .map(
       ({
@@ -36,4 +51,18 @@ export function cardMarkup(array) {
     `
     )
     .join('');
+}
+
+export function createMarkup(array, page) {
+  if (page === 1) {
+    imageList.innerHTML = cardMarkup(array);
+  } else {
+    imageList.insertAdjacentHTML('beforeend', cardMarkup(array));
+  }
+  lightbox.refresh();
+  if (array.totalHits > perPage * page) {
+    loadMore.classList.remove('hidden-item');
+    page += 1;
+  }
+  return page;
 }

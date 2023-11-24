@@ -9,8 +9,9 @@ const SAFESEARCH = 'true';
 
 const IMAGE_ID = '';
 
-export function searchRequest(q, page, per_page) {
-  const axios = require('axios').default;
+let axios = require('axios').default;
+
+export async function searchRequest(q, page, per_page) {
   const options = {
     method: 'GET',
     params: {
@@ -23,12 +24,5 @@ export function searchRequest(q, page, per_page) {
       per_page,
     },
   };
-  return axios.get(`${BASE_URL}`, options).then(resp => resp);
-
-  // return fetch(`${BASE_URL}`, options).then(response => {
-  //   if (!response.ok) {
-  //     throw new Error(response.status);
-  //   }
-  //   return response.json();
-  // });
+  return await axios.get(`${BASE_URL}`, options).then(resp => resp.data);
 }
