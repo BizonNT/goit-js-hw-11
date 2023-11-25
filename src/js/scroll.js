@@ -26,19 +26,20 @@ let observer = new IntersectionObserver(onAdd, options);
 
 function onAdd(entries, observer) {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      if (end) {
-        observer.unobserve(target);
+    if (!end) {
+      if (entry.isIntersecting) {
+        clickNextLoad();
       }
-      clickNextLoad();
+    } else {
+      observer.unobserve(target);
     }
   });
 }
 
-export function getPage(array, page) {
-  if (array.totalHits > perPage * page) {
+export function getPage(item, page) {
+  if (item > perPage * page) {
     page += 1;
-    end = array.totalHits <= perPage * page;
+    end = item <= perPage * page;
     typeSelector(selector.children.scrollType.value);
   }
   return page;
@@ -47,6 +48,7 @@ export function getPage(array, page) {
 function typeSelector(item) {
   if (item === 'loadMore') {
     elementShow(loadMore);
+    observer.unobserve(target);
   } else {
     observer.observe(target);
   }

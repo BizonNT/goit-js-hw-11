@@ -1,4 +1,11 @@
 import Notiflix from 'notiflix';
+import SlimSelect from 'slim-select';
+
+import { searchRequest } from './servises';
+import { createMarkup, elementHide, elementShow } from './markup';
+import { getPage } from './scroll';
+import { checkSearchParam, checkTotalHits } from './messages';
+
 Notiflix.Notify.init({
   width: '300px',
   position: 'left-bottom',
@@ -6,12 +13,6 @@ Notiflix.Notify.init({
   fontSize: '16px',
   timeout: 4000,
 });
-
-import SlimSelect from 'slim-select';
-
-import { searchRequest } from './servises';
-import { createMarkup, elementHide, elementShow } from './markup';
-import { getPage } from './scroll';
 
 const formSearch = document.querySelector('#search-form');
 const imageList = document.querySelector('.js-list');
@@ -39,25 +40,24 @@ new SlimSelect({
   },
 });
 
-function onSubmit(event) {
-  event.preventDefault();
-  elementHide(selector);
-  elementHide(partner);
-  startPage = 1;
-  serchItem = event.currentTarget.elements.searchQuery.value;
-  perPage = selector.children.perPage.value;
-  searchRequest(serchItem.trim(), perPage, startPage)
-    .then(response => {
-      if (response.totalHits === 0) {
-        throw new Error(
-          'Sorry, there are no images matching your search query. Please try again'
-        );
-      }
-      createMarkup(response, startPage);
-      startPage = getPage(response, startPage);
-      Notiflix.Notify.success(`Hooray! We found ${response.totalHits} images`);
-    })
-    .catch(error => onError(error.message));
+async function onSubmit(event) {
+  try {
+    event.preventDefault();
+    elementHide(loadMore);
+    elementHide(selector);
+    elementHide(partner);
+    startPage = 1;
+    serchItem = event.currentTarget.elements.searchQuery.value.trim();
+    checkSearchParam(serchItem);
+    perPage = selector.children.perPage.value;
+    const apiResponse = await searchRequest(serchItem, perPage, startPage);
+    checkTotalHits(apiResponse.totalHits);
+    createMarkup(apiResponse.hits, startPage);
+    startPage = getPage(apiResponse.totalHits, startPage);
+    Notiflix.Notify.success(`Hooray! We found ${apiResponse.totalHits} images`);
+  } catch (error) {
+    onError(error.message);
+  }
 }
 
 function clickLoadMore(event) {
@@ -65,22 +65,20 @@ function clickLoadMore(event) {
   clickNextLoad();
 }
 
-export function clickNextLoad() {
-  searchRequest(serchItem, perPage, startPage)
-    .then(response => {
-      if (response.totalHits === 0) {
-        throw new Error('Sorry, something went wrong. Please try again');
-      }
-      if (response.totalHits <= perPage * startPage) {
-        Notiflix.Notify.info(
-          `We're sorry, but you've reached the end of ${response.totalHits} search results.`
-        );
-      }
-      createMarkup(response, startPage);
-      elementHide(loadMore);
-      startPage = getPage(response, startPage);
-    })
-    .catch(error => onError(error.message));
+export async function clickNextLoad() {
+  try {
+    const apiAddResponse = await searchRequest(serchItem, perPage, startPage);
+    if (apiAddResponse.totalHits <= perPage * startPage && startPage > 1) {
+      Notiflix.Notify.info(
+        `We're sorry, but you've reached the end of ${apiAddResponse.totalHits} search results.`
+      );
+    }
+    createMarkup(apiAddResponse.hits, startPage);
+    elementHide(loadMore);
+    startPage = getPage(apiAddResponse.totalHits, startPage);
+  } catch (error) {
+    onError(error.message);
+  }
 }
 
 function onError(message) {
@@ -89,7 +87,7 @@ function onError(message) {
   elementShow(selector);
   elementShow(partner);
   imageList.innerHTML = '';
-  formSearch.elements.searchQuery.value = '';
+  formSearch.reset();
 }
 
 export { loadMore, imageList, selector, perPage };

@@ -15,7 +15,7 @@ let lightbox = new SimpleLightbox('.gallery a', {
 import { imageList, selector } from './index';
 
 function cardMarkup(array) {
-  return array.hits
+  return array
     .map(
       ({
         downloads,

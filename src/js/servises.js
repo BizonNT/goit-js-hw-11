@@ -1,16 +1,16 @@
 import axios from 'axios';
 
 const BASE_URL = 'https://pixabay.com/api/';
-
 const API_KEY = '40836630-710aac82fe531023a7159c672';
 const IMAGE_TYPE = 'photo';
 const ORIENTATION = 'horizontal';
 const SAFESEARCH = 'true';
 
-export async function searchRequest(q, per_page, page) {
-  const axios = require('axios').default;
+axios.defaults.baseURL = BASE_URL;
+
+export function searchRequest(q, per_page, page) {
   const options = {
-    method: 'GET',
+    // method: 'GET',
     params: {
       key: API_KEY,
       q,
@@ -21,5 +21,5 @@ export async function searchRequest(q, per_page, page) {
       per_page,
     },
   };
-  return await axios.get(`${BASE_URL}`, options).then(resp => resp.data);
+  return axios.get("", options).then(resp => resp.data);
 }
