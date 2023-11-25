@@ -7,32 +7,54 @@ Notiflix.Notify.init({
   timeout: 4000,
 });
 
+import SlimSelect from 'slim-select';
+
 import { searchRequest } from './servises';
-import { createMarkup } from './markup';
+import { createMarkup, elementHide, elementShow } from './markup';
+import { getPage } from './scroll';
 
 const formSearch = document.querySelector('#search-form');
 const imageList = document.querySelector('.js-list');
 const loadMore = document.querySelector('.js-load-more');
+const selector = document.querySelector('.js-select');
+const partner = document.querySelector('.js-partner');
 
 let startPage = 1;
 let serchItem = '';
-let perPage = '40';
+let perPage = '';
 
 formSearch.addEventListener('submit', onSubmit);
 loadMore.addEventListener('click', clickLoadMore);
 
+new SlimSelect({
+  select: '#pages-count',
+  settings: {
+    showSearch: false,
+  },
+});
+new SlimSelect({
+  select: '#scroll',
+  settings: {
+    showSearch: false,
+  },
+});
+
 function onSubmit(event) {
   event.preventDefault();
+  elementHide(selector);
+  elementHide(partner);
   startPage = 1;
   serchItem = event.currentTarget.elements.searchQuery.value;
-  searchRequest(serchItem.trim(), startPage, perPage)
+  perPage = selector.children.perPage.value;
+  searchRequest(serchItem.trim(), perPage, startPage)
     .then(response => {
       if (response.totalHits === 0) {
         throw new Error(
           'Sorry, there are no images matching your search query. Please try again'
         );
       }
-      startPage = createMarkup(response, startPage);
+      createMarkup(response, startPage);
+      startPage = getPage(response, startPage);
       Notiflix.Notify.success(`Hooray! We found ${response.totalHits} images`);
     })
     .catch(error => onError(error.message));
@@ -40,8 +62,11 @@ function onSubmit(event) {
 
 function clickLoadMore(event) {
   event.preventDefault();
-  loadMore.classList.add('hidden-item');
-  searchRequest(serchItem, startPage, perPage)
+  clickNextLoad();
+}
+
+export function clickNextLoad() {
+  searchRequest(serchItem, perPage, startPage)
     .then(response => {
       if (response.totalHits === 0) {
         throw new Error('Sorry, something went wrong. Please try again');
@@ -51,16 +76,20 @@ function clickLoadMore(event) {
           `We're sorry, but you've reached the end of ${response.totalHits} search results.`
         );
       }
-      startPage = createMarkup(response, startPage);
+      createMarkup(response, startPage);
+      elementHide(loadMore);
+      startPage = getPage(response, startPage);
     })
     .catch(error => onError(error.message));
 }
 
 function onError(message) {
   Notiflix.Notify.failure(message);
+  elementHide(loadMore);
+  elementShow(selector);
+  elementShow(partner);
   imageList.innerHTML = '';
-  loadMore.classList.add('hidden-item');
   formSearch.elements.searchQuery.value = '';
 }
 
-export { loadMore, imageList, perPage };
+export { loadMore, imageList, selector, perPage };

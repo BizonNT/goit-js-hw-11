@@ -1,5 +1,6 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { softAdd } from './scroll';
 
 let lightbox = new SimpleLightbox('.gallery a', {
   captions: true,
@@ -11,7 +12,7 @@ let lightbox = new SimpleLightbox('.gallery a', {
   close: true,
 });
 
-import { loadMore, imageList, perPage } from './index';
+import { imageList, selector } from './index';
 
 function cardMarkup(array) {
   return array.hits
@@ -58,19 +59,16 @@ export function createMarkup(array, page) {
     imageList.innerHTML = cardMarkup(array);
   } else {
     imageList.insertAdjacentHTML('beforeend', cardMarkup(array));
-    const { height: cardHeight } = document
-      .querySelector('.gallery')
-      .firstElementChild.getBoundingClientRect();
-
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
+    if (selector.children.scrollType.value === 'loadMore') {
+      softAdd();
+    }
   }
   lightbox.refresh();
-  if (array.totalHits > perPage * page) {
-    loadMore.classList.remove('hidden-item');
-    page += 1;
-  }
-  return page;
+}
+
+export function elementHide(item) {
+  item.classList.add('hidden-item');
+}
+export function elementShow(item) {
+  item.classList.remove('hidden-item');
 }

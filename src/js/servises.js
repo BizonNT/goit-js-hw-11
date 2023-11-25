@@ -7,9 +7,7 @@ const IMAGE_TYPE = 'photo';
 const ORIENTATION = 'horizontal';
 const SAFESEARCH = 'true';
 
-const IMAGE_ID = '';
-
-export async function searchRequest(q, page, per_page) {
+export async function searchRequest(q, per_page, page) {
   const axios = require('axios').default;
   const options = {
     method: 'GET',
