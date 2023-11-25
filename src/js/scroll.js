@@ -27,7 +27,6 @@ let observer = new IntersectionObserver(onAdd, options);
 function onAdd(entries, observer) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      console.log(end);
       if (end) {
         observer.unobserve(target);
       }
